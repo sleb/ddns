@@ -1,4 +1,5 @@
 use clap::{command, Parser};
+use log::{error, info};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -11,21 +12,22 @@ struct Cli {
 }
 
 fn main() {
+    env_logger::init();
+
     let cli = Cli::parse();
     let url = format!(
         "https://duckdns.org/update?domains={}&token={}&verbose=true",
         &cli.domain, &cli.token
     );
 
+    info!("waking up");
     match ureq::get(&url).call() {
         Ok(response) => {
-            println!(
-                "{}",
-                response.into_string().unwrap_or_default().escape_debug()
-            );
+            info!("{}", response.into_string().unwrap_or_default());
         }
         Err(e) => {
-            eprintln!("Error: {}", e.to_string());
+            error!("Error calling `{}`: {}", &url, e.to_string())
         }
     }
+    info!("done");
 }
