@@ -1,6 +1,5 @@
 tasks:
-  - init: cargo build
-    command: cargo watch -x run
+  - init: cargo install cross
 
 vscode:
   extensions:
