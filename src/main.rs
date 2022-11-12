@@ -14,7 +14,7 @@ struct Cli {
 
     /// number minutes to sleep (triggers daemon mode)
     #[arg(short, long)]
-    sleep: Option<u32>,
+    sleep: Option<u64>,
 }
 
 fn update(domain: &str, token: &str) {
@@ -41,13 +41,13 @@ fn main() {
     loop {
         info!("waking up");
         update(&cli.domain, &cli.token);
+        info!("done");
         match cli.sleep {
             Some(minutes) => {
                 info!("sleeping {} minutes...", minutes);
-                thread::sleep(Duration::from_secs(minutes as u64 * 60u64))
+                thread::sleep(Duration::from_secs(minutes * 60))
             }
             None => break,
         }
-        info!("done");
     }
 }
