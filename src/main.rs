@@ -15,6 +15,10 @@ struct Cli {
     /// number minutes to sleep (triggers daemon mode)
     #[arg(short, long)]
     sleep: Option<u64>,
+
+    /// verbosity - can be specified multiple times
+    #[arg(short, long, action = clap::ArgAction::Count)]
+    verbose: Option<u8>,
 }
 
 fn update(domain: &str, token: &str) {
@@ -25,7 +29,7 @@ fn update(domain: &str, token: &str) {
 
     match ureq::get(&url).call() {
         Ok(response) => {
-            info!("{}", response.into_string().unwrap_or_default());
+            info!("{}", response.into_string().unwrap_or(String::from("")));
         }
         Err(e) => {
             error!("Error calling `{}`: {}", &url, e.to_string())
@@ -34,9 +38,12 @@ fn update(domain: &str, token: &str) {
 }
 
 fn main() {
-    env_logger::init();
-
     let cli = Cli::parse();
+    stderrlog::new()
+        .module(module_path!())
+        .verbosity(cli.verbose.unwrap_or(0) as usize + 1)
+        .init()
+        .unwrap();
 
     loop {
         info!("waking up");
